@@ -16,9 +16,9 @@ public class MineSweeper {
 
 	//A - Properties & Constants
 	//A.1 Constants
-	private final int BOARD_ROWS = 10;
-	private final int BOARD_COLS = 10;
-	private final int NO_OF_MINE = 12;
+	public static final int BOARD_ROWS = 10;
+	public static final int BOARD_COLS = 10;
+	public static final int NO_OF_MINE = 12;
 	private final int OPEN = 1;
 	private final int CLOSED = 2;
 	private final int FLAGGED = 3;
@@ -91,6 +91,7 @@ public class MineSweeper {
 		if( board.getState( row, col, IND_MINED) == MINED) {
 			
 			isOver = true; //Lost
+			tile.setState( IND_OPEN_CLOSED, OPEN);
 			return false;
 		}
 		
@@ -140,6 +141,24 @@ public class MineSweeper {
 		
 		if( board.getState( row, col, IND_OPEN_CLOSED) == CLOSED)
 			board.setState( row, col, IND_OPEN_CLOSED, FLAGGED);
+	}
+	
+	public void unflag( int row, int col) {
+		
+		if( board.getState( row, col, IND_OPEN_CLOSED) == FLAGGED)
+			board.setState( row, col, IND_OPEN_CLOSED, CLOSED);
+	}
+	
+	public void flagOrUnflag( int row, int col) {
+		
+		if( board.getState( row, col, IND_OPEN_CLOSED) == CLOSED) {
+			
+			board.setState( row, col, IND_OPEN_CLOSED, FLAGGED);
+			return;
+		}
+		
+		if( board.getState( row, col, IND_OPEN_CLOSED) == FLAGGED)
+			board.setState( row, col, IND_OPEN_CLOSED, CLOSED);
 	}
 	
 	private void setMines( int noMine) {
@@ -213,15 +232,29 @@ public class MineSweeper {
 			System.out.println();
 			row = scanner.nextInt();
 			col = scanner.nextInt();
-			game.open( row, col);
+			if( row < 0) {
+				
+				row = Math.abs( row);
+				game.flagOrUnflag( row, col);
+			}
+			
+			else
+				game.open( row, col);
 		}
 		
 		game.display();
 		if( game.hasPlayerWon())
 			System.out.println( "You won");
 		
-		else
+		else {
+			
+			for( int i = 0; i < MineSweeper.BOARD_ROWS; i++)
+				for( int j = 0; j < MineSweeper.BOARD_COLS; j++)
+					game.open( i, j);
+					
 			System.out.println( "You lost");
+			game.display();
+		}
 		
 		scanner.close();
 	}
