@@ -1,5 +1,4 @@
 import java.util.Iterator;
-import java.util.Scanner;
 
 /**
  * A basic Mine Sweeper game using Board class.
@@ -16,9 +15,9 @@ public class MineSweeper {
 
 	//A - Properties & Constants
 	//A.1 Constants
-	public static final int BOARD_ROWS = 10;
-	public static final int BOARD_COLS = 10;
-	public static final int NO_OF_MINE = 12;
+	public static final int EASY = 0;
+	public static final int MED = 1;
+	public static final int HARD = 2;
 	private final int OPEN = 1;
 	private final int CLOSED = 2;
 	private final int FLAGGED = 3;
@@ -30,6 +29,10 @@ public class MineSweeper {
 	private final int IND_NUMBER = 2;
 	
 	//A.2 Properties
+	public int		boardRows;
+	public int		boardCols;
+	public int		noOfMines;
+	
 	private Board   board;
 	private boolean hasWon;
 	private boolean isOver;
@@ -37,17 +40,48 @@ public class MineSweeper {
 	private int		noOfClearBox; //No of remaining closed clear boxes
 	
 	//B - Constructors
-	public MineSweeper() {
+	public MineSweeper( int difficulty) {
 		
-		board = new Board( BOARD_ROWS, BOARD_COLS);
+		setDifficulty( difficulty);
+		
+		board = new Board( boardRows, boardCols);
 		isStarted = false;
 		hasWon = false;
 		isOver = false;
+		
+		Iterator<Tile> it = board.iterator();
+		
+		while( it.hasNext()) {
+			
+			Tile tile = it.next();
+			tile.addState( CLOSED);
+			tile.addState( CLEAR);
+			tile.addState( 0);			
+		}
+	}
+	
+	public MineSweeper( int rows, int cols, int mines) {
+		
+		setRowColMine( rows, cols, mines);
+		board = new Board( boardRows, boardCols);
+		isStarted = false;
+		hasWon = false;
+		isOver = false;
+		
+		Iterator<Tile> it = board.iterator();
+		
+		while( it.hasNext()) {
+			
+			Tile tile = it.next();
+			tile.addState( CLOSED);
+			tile.addState( CLEAR);
+			tile.addState( 0);			
+		}
 	}
 	
 	//C - Methods
 	
-	//C.1 - Get Methods
+	//C.1 - Get & Set Methods
 	public boolean isOver() {
 		
 		return isOver;
@@ -63,35 +97,95 @@ public class MineSweeper {
 		return isStarted;
 	}
 	
+	public void setRowColMine( int row, int col, int mine) {
+		
+		//TODO: Be sure mine is not greater than row * col;
+		board = new Board( row, col);
+		Iterator<Tile> it = board.iterator();
+		
+		while( it.hasNext()) {
+			
+			Tile tile = it.next();
+			tile.addState( CLOSED);
+			tile.addState( CLEAR);
+			tile.addState( 0);			
+		}
+		
+		boardRows = row;
+		boardCols = col;
+		noOfMines = mine;
+	}
+	
+	public void setDifficulty( int difficulty) {
+		
+		//TODO: Make this numbers constants.
+		if( difficulty == EASY)
+			setRowColMine( 10, 10, 12);
+		
+		else if( difficulty == MED) 
+			setRowColMine( 16, 16, 40);
+		
+		else if( difficulty == HARD)
+			setRowColMine( 16, 30, 100);
+		
+		else {
+			
+			//TODO : Give Exception
+		}
+	}
+	
 	//C.2 - Other Methods
 	public void newGame() {
 		
-		isStarted = true;
 		hasWon = false;
 		isOver = false;
+		isStarted = true;
 		
 		Iterator<Tile> it = board.iterator();
 		while( it.hasNext())
-			it.next().addState( CLOSED);
+			it.next().setState( IND_OPEN_CLOSED, CLOSED);
 		
-		setMines( NO_OF_MINE);
+		setMines( noOfMines);
+	}
+	
+	private void reveal() {
+		
+		Iterator<Tile> it = board.iterator();
+		while( it.hasNext()) {
+			
+			Tile tile = it.next();
+			tile.setState( IND_OPEN_CLOSED, OPEN);
+			if( tile.getState( IND_MINED) != MINED) {
+				
+				int noOfMines = 0;
+				
+				Iterator<Tile> it2 = board.getNearTiles( tile).iterator();
+				while( it2.hasNext())
+					if( it2.next().getState(IND_MINED) == MINED)
+						noOfMines++;
+				
+				tile.setState( IND_NUMBER, noOfMines);
+			}
+		}
 	}
 	
 	public boolean open( int row, int col) {
 		
 		//Return false if game is over after opening the box.
-		
-		Tile tile = board.getTile( row, col);
-		if( tile.getState( IND_OPEN_CLOSED) == OPEN || tile.getState( IND_OPEN_CLOSED) == FLAGGED) {
+		if( row < 0 || col < 0 || row >= boardRows || col >= boardCols) {
 			
-			System.out.println( "Cannot open the box already opened or flagged"); //Need to change with exception
+			//TODO: Exception
 			return true;
 		}
+		
+		Tile tile = board.getTile( row, col);
+		if( tile.getState( IND_OPEN_CLOSED) == OPEN || tile.getState( IND_OPEN_CLOSED) == FLAGGED)
+			return true;
 		
 		if( board.getState( row, col, IND_MINED) == MINED) {
 			
 			isOver = true; //Lost
-			tile.setState( IND_OPEN_CLOSED, OPEN);
+			reveal();
 			return false;
 		}
 		
@@ -111,7 +205,7 @@ public class MineSweeper {
 					noOfNearMines++;
 			}
 			
-			tile.addState( noOfNearMines);
+			tile.setState( IND_NUMBER, noOfNearMines);
 			
 			noOfClearBox--;
 			if( noOfClearBox == 0) {
@@ -134,7 +228,7 @@ public class MineSweeper {
 			}
 		}
 		
-		return false;
+		return true;
 	}
 	
 	public void flag( int row, int col) {
@@ -163,11 +257,11 @@ public class MineSweeper {
 	
 	private void setMines( int noMine) {
 		
-		int size = BOARD_ROWS * BOARD_COLS;
+		int size = boardRows * boardCols;
 		noOfClearBox = size - noMine;
 		
 		for( int i = 0; i < size; i++)
-			board.addState( i / BOARD_ROWS, i % BOARD_COLS, CLEAR);
+			board.setState( i / boardRows, i % boardCols, IND_MINED, CLEAR);
 		
 		int[] randomNumbers = new int[ size];
 		for( int i = 0; i < size; i++)
@@ -184,78 +278,35 @@ public class MineSweeper {
 		}
 		
 		for( int i = 0; i < noMine; i++)
-			board.getTile( randomNumbers[i] / BOARD_ROWS, randomNumbers[i] % BOARD_COLS).setState( IND_MINED, MINED);
+			board.getTile( randomNumbers[i] / boardRows, randomNumbers[i] % boardCols).setState( IND_MINED, MINED);
 	}
 	
-	//C.3 - Test Methods
-	public void display() {
+	public int[][] getLastState() {
 		
-		for( int i = 0; i < BOARD_ROWS; i++) {
-			
-			for( int j = 0; j < BOARD_COLS; j++) {
+		//TODO: Use constants of Controller class and discuss its elegance.
+		
+		int[][] arr = new int[boardRows][boardCols];
+		
+		for( int i = 0; i < boardRows; i++)
+			for( int j = 0; j < boardCols; j++) {
 				
-				String result = ".";
-				if( board.getState( i, j, IND_OPEN_CLOSED) == CLOSED)
-					result = "#";
+				Tile tile = board.getTile( i, j);
+				if( tile.getState( IND_OPEN_CLOSED) == CLOSED)
+					arr[i][j] = -1;
 				
-				else if( board.getState( i, j, IND_OPEN_CLOSED) == FLAGGED)
-					result = "/";
+				else if( tile.getState( IND_OPEN_CLOSED) == FLAGGED)
+					arr[i][j] = -2;
 				
 				else {
 					
-					if( board.getState( i, j, IND_MINED) == MINED)
-						result = "*";
+					if( tile.getState( IND_MINED) == MINED)
+						arr[i][j] = -3;
 					
 					else
-						result = "" + board.getState( i, j, IND_NUMBER);
+						arr[i][j] = tile.getState( IND_NUMBER);
 				}
-				System.out.print( result + " ");
 			}
-			
-			System.out.println();
-		}
-	}
-	
-	public static void main( String[] args) {
 		
-		Scanner scanner = new Scanner( System.in);
-		int row, col;
-		
-		System.out.println( "Welcome to the game\n\n");
-		
-		MineSweeper game = new MineSweeper();
-		game.newGame();
-		
-		while( !game.isOver()) {
-			
-			game.display();
-			System.out.println();
-			row = scanner.nextInt();
-			col = scanner.nextInt();
-			if( row < 0) {
-				
-				row = Math.abs( row);
-				game.flagOrUnflag( row, col);
-			}
-			
-			else
-				game.open( row, col);
-		}
-		
-		game.display();
-		if( game.hasPlayerWon())
-			System.out.println( "You won");
-		
-		else {
-			
-			for( int i = 0; i < MineSweeper.BOARD_ROWS; i++)
-				for( int j = 0; j < MineSweeper.BOARD_COLS; j++)
-					game.open( i, j);
-					
-			System.out.println( "You lost");
-			game.display();
-		}
-		
-		scanner.close();
+		return arr;
 	}
 }
