@@ -261,12 +261,12 @@ public class MineSweeper {
 		noOfClearBox = size - noMine;
 		
 		for( int i = 0; i < size; i++)
-			board.setState( i / boardRows, i % boardCols, IND_MINED, CLEAR);
+			board.setState( i / boardCols, i % boardCols, IND_MINED, CLEAR);
 		
 		int[] randomNumbers = new int[ size];
 		for( int i = 0; i < size; i++)
 			randomNumbers[i] = i;
-		
+				
 		int rand;
 		int temp;
 		for( int i = size - 1; i > 0; i--) {
@@ -278,7 +278,7 @@ public class MineSweeper {
 		}
 		
 		for( int i = 0; i < noMine; i++)
-			board.getTile( randomNumbers[i] / boardRows, randomNumbers[i] % boardCols).setState( IND_MINED, MINED);
+			board.getTile( randomNumbers[i] / boardCols, randomNumbers[i] % boardCols).setState( IND_MINED, MINED);
 	}
 	
 	public int[][] getLastState() {

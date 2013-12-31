@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -23,20 +24,21 @@ import javax.swing.SwingUtilities;
  */
 public class ViewBlue extends JPanel implements Viewable {
 	
+	private static final long serialVersionUID = 6553403741026826421L;
 	//A - Properties
 	private Controller controller;
 	private JLabel[][] board;
 	private int	rows;
 	private int cols;
-	public static final ImageIcon closed = new ImageIcon( "images/closed_tile.jpg");
-	public static final ImageIcon mined = new ImageIcon( "images/mine.jpg");
-	public static final ImageIcon flagged = new ImageIcon( "images/flagged.jpg");
+	public final ImageIcon closed = new ImageIcon( getClass().getResource( "/images/closed_tile.jpg"));
+	public final ImageIcon mined = new ImageIcon( getClass().getResource( "/images/mine.jpg"));
+	public final ImageIcon flagged = new ImageIcon( getClass().getResource( "/images/flagged.jpg"));
 	public static final Color[] colors = { new Color( 0, 0, 0), new Color( 0, 0, 240),
 										   new Color( 40, 0, 200), new Color( 80, 0, 160),
 										   new Color( 120, 0, 120), new Color( 160, 0, 80),
 										   new Color( 200, 0, 40), new Color( 240, 0, 0)};
 	
-	JMenuItem easy, med, hard;
+	JMenuItem easy, med, hard, game;
 	JFrame frame;
 	
 	//B - Constructors
@@ -55,7 +57,7 @@ public class ViewBlue extends JPanel implements Viewable {
 				board[i][j].setHorizontalAlignment( SwingConstants.CENTER );
 			}
 		
-		setPreferredSize( new Dimension( rows * 20, cols * 20)); 
+		setPreferredSize( new Dimension( cols * 20, rows * 20)); 
 		setLayout( new GridLayout( rows, cols));
 		for( int i = 0; i < rows; i++)
 			for( int j = 0; j < cols; j++)
@@ -77,7 +79,10 @@ public class ViewBlue extends JPanel implements Viewable {
 			rows = arr.length;
 			cols = arr[0].length;
 			
-			frame.setPreferredSize( new Dimension( rows * 20, cols * 20));
+			removeAll();
+			setPreferredSize( new Dimension( cols * 20, rows * 20));
+			frame.pack();
+			setLayout( new GridLayout( rows, cols));
 			board = new JLabel[ rows][ cols];
 			for( int i = 0; i < rows; i++)
 				for( int j = 0; j < cols; j++) {
@@ -86,8 +91,6 @@ public class ViewBlue extends JPanel implements Viewable {
 					board[i][j].setHorizontalAlignment( SwingConstants.CENTER );
 				}
 			
-			setPreferredSize( new Dimension( rows * 20, cols * 20)); 
-			setLayout( new GridLayout( rows, cols));
 			for( int i = 0; i < rows; i++)
 				for( int j = 0; j < cols; j++)
 					add( board[i][j]);
@@ -117,6 +120,14 @@ public class ViewBlue extends JPanel implements Viewable {
 				}
 			}
 		
+		if( controller.isGameOver()) {
+			
+			if( controller.hasPlayerWon())
+				JOptionPane.showMessageDialog(frame, "The game is over, you won");
+			
+			else
+				JOptionPane.showMessageDialog(frame, "The game is over, you lost");
+		}
 	}
 
 	@Override
@@ -131,7 +142,8 @@ public class ViewBlue extends JPanel implements Viewable {
 		med.addActionListener( new MenuListener());
 		hard = new JMenuItem( "Hard");
 		hard.addActionListener( new MenuListener());
-		JMenuItem game = new JMenuItem( "Game");
+		game = new JMenuItem( "Game");
+		game.addActionListener( new MenuListener());
 		newGame.add( easy);
 		newGame.add( med);
 		newGame.add( hard);
@@ -143,6 +155,7 @@ public class ViewBlue extends JPanel implements Viewable {
 		frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().add( this);
 		frame.setJMenuBar( bar);
+		frame.setResizable( false);
 		frame.pack();
 		frame.setVisible( true);
 	}
@@ -188,6 +201,14 @@ public class ViewBlue extends JPanel implements Viewable {
 				
 				controller.setDifficulty( Controller.HARD);
 				controller.newGame();
+			}
+			
+			else if( event.getSource() == game) {
+				
+				JOptionPane.showMessageDialog(frame,
+					    "For more information, visit Git page :\nhttps://github.com/Shathra/mine-sweeper.",
+					    "About the Game",
+					    JOptionPane.WARNING_MESSAGE);
 			}
 		}
 	}
