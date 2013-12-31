@@ -206,7 +206,12 @@ public class ViewBlue extends JPanel implements Viewable {
 			else if( event.getSource() == game) {
 				
 				JOptionPane.showMessageDialog(frame,
-					    "For more information, visit Git page :\nhttps://github.com/Shathra/mine-sweeper.",
+					    "This project is designed to test a game board library.\n" +
+					    "It is a basic minesweeper game. Users can open a square by clicking on it or\nput" +
+					    "flags to remind that there is a mine on it by right clicking.\nNumber in a square shows" +
+					    " the number of mines around the square.\nIf the user open a square having a mine, the game" +
+					    "is over. In order to win the game,\nthe user should open all safe squares.\n\n" +
+					    "For more information, visit Git page :\nhttps://github.com/Shathra/mine-sweeper",
 					    "About the Game",
 					    JOptionPane.WARNING_MESSAGE);
 			}
