@@ -17,6 +17,13 @@ This package contains these files :
  - ViewBlue.java
  - Board library files
  
+Demo
+--------
+
+![demo](https://raw.github.com/Shathra/mine-sweeper/master/demo.png)
+
+[Download the jar file](https://github.com/Shathra/mine-sweeper/raw/master/demo.jar)
+ 
 Board Package
 --------
 
