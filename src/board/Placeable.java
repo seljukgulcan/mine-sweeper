@@ -1,3 +1,5 @@
+package board;
+
 /**
  * Placeable objects.
  * 

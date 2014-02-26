@@ -1,4 +1,5 @@
 import java.util.Iterator;
+import board.*;
 
 /**
  * A basic Mine Sweeper game using Board class.
@@ -40,7 +41,7 @@ public class MineSweeper {
 	private int		noOfClearBox; //No of remaining closed clear boxes
 	
 	//B - Constructors
-	public MineSweeper( int difficulty) {
+	public MineSweeper( int difficulty)  {
 		
 		setDifficulty( difficulty);
 		
@@ -60,7 +61,7 @@ public class MineSweeper {
 		}
 	}
 	
-	public MineSweeper( int rows, int cols, int mines) {
+	public MineSweeper( int rows, int cols, int mines)  {
 		
 		setRowColMine( rows, cols, mines);
 		board = new Board( boardRows, boardCols);
@@ -97,9 +98,8 @@ public class MineSweeper {
 		return isStarted;
 	}
 	
-	public void setRowColMine( int row, int col, int mine) {
+	public void setRowColMine( int row, int col, int mine){
 		
-		//TODO: Be sure mine is not greater than row * col;
 		board = new Board( row, col);
 		Iterator<Tile> it = board.iterator();
 		
@@ -116,7 +116,7 @@ public class MineSweeper {
 		noOfMines = mine;
 	}
 	
-	public void setDifficulty( int difficulty) {
+	public void setDifficulty( int difficulty)  {
 		
 		//TODO: Make this numbers constants.
 		if( difficulty == EASY)
@@ -184,9 +184,9 @@ public class MineSweeper {
 		
 		if( board.getState( row, col, IND_MINED) == MINED) {
 			
-			isOver = true; //Lost
+			isOver = true;
 			reveal();
-			return false;
+			return false; //Lost
 		}
 		
 		else {
@@ -195,7 +195,6 @@ public class MineSweeper {
 			
 			int noOfNearMines = 0;
 			
-			//Code Block Here
 			Iterator<Tile> it = board.getNearTiles( tile).iterator();
 			
 			while( it.hasNext()) {

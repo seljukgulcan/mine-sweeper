@@ -1,3 +1,5 @@
+package board;
+
 import java.util.ArrayList;
 import java.util.Properties;
 

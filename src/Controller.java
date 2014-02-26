@@ -24,7 +24,11 @@ public class Controller {
 	//B - Constructors
 	public Controller() {
 		
-		game = new MineSweeper( MineSweeper.EASY); //By default, game's mode is easy.
+		try {
+			game = new MineSweeper( MineSweeper.EASY);
+		} catch (Exception e) {
+			e.getMessage();
+		} //By default, game's mode is easy.
 		game.newGame();
 		views = new Views();
 		views.addView( new ViewBlue( this));
@@ -43,7 +47,7 @@ public class Controller {
 		views.update();
 	}
 	
-	public void setDifficulty( int difficulty) {
+	public void setDifficulty( int difficulty)  {
 		
 		game.setDifficulty( difficulty);
 	}
